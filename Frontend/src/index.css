@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+  @apply overflow-x-hidden;
+}
+
+body {
+  @apply overflow-x-hidden;
+}
+
+/* Custom animation delays */
+@layer utilities {
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+  .animation-delay-700 {
+    animation-delay: 700ms;
+  }
+  .animation-delay-1000 {
+    animation-delay: 1000ms;
+  }
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  /* Transition delays */
+  .delay-100 {
+    transition-delay: 100ms;
+  }
+  .delay-200 {
+    transition-delay: 200ms;
+  }
+  .delay-300 {
+    transition-delay: 300ms;
+  }
+  .delay-500 {
+    transition-delay: 500ms;
+  }
+  .delay-700 {
+    transition-delay: 700ms;
+  }
+  .delay-1000 {
+    transition-delay: 1000ms;
+  }
+}
+
+/* Gradient text utility */
+@layer components {
+  .gradient-text {
+    @apply bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent;
+  }
+
+  .gradient-text-cyan {
+    @apply bg-gradient-to-r from-cyan-400 to-pink-400 bg-clip-text text-transparent;
+  }
+
+  /* Smooth transitions */
+  * {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* Button base styles */
+  button {
+    @apply relative overflow-hidden;
+  }
+
+  /* Link hover effects */
+  a {
+    @apply transition-all duration-300;
+  }
+}
+
+/* Prevent layout shift on scroll */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Selection color */
+::selection {
+  @apply bg-purple-600 text-white;
+}
