@@ -1,11 +1,194 @@
+// index.js
 import express from "express";
 import dotenv from "dotenv";
-
+import mongoose from 'mongoose';
+import cors from 'cors';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import auth from "./auth.js";
+import User from "./User.js";
+import Admins from "./Admins.js";
+import course from "./Course.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
- 
+
+// Middleware
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}));
+app.use(express.json());
+
+// ------------------ ROUTES ------------------
+
+// USER SIGNUP
+app.post('/api/signup', async (req, res) => {
+  console.log(req.body)
+  const { name, email, password } = req.body;
+
+  try {
+    const existingUser = await User.findOne({
+      $or: [{ email }, { name }]
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // ❌ DO NOT hash here
+    const newUser = new User({ name, email, password });
+    const savedUser = await newUser.save();
+
+    res.status(201).json({
+      message: "success",
+      user: {
+        id: savedUser._id,
+        name: savedUser.name,
+        email: savedUser.email
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Signup failed", error: error.message });
+  }
+});
+app.post("/api/enroll", auth, async (req, res) => {
+  try {
+    const {
+      studentId,
+      emailId,
+      mobileNumber,
+      parentMobileNumber,
+      dateOfBirth,
+    } = req.body;
+
+    // ✅ Phone validation
+    if (mobileNumber.length !== 10 || parentMobileNumber.length !== 10) {
+      return res.status(400).json({
+        message: "Mobile numbers must be exactly 10 digits",
+      });
+    }
+
+    // ✅ Duplicate check
+    const existing = await course.findOne({
+      $or: [{ studentId }, { emailId }],
+    });
+
+    if (existing) {
+      return res.status(400).json({ message: "Already enrolled" });
+    }
+
+    // ✅ Save
+    const newCourse = new course({
+      ...req.body,
+      dateOfBirth: new Date(dateOfBirth),
+    });
+
+    await newCourse.save();
+
+    res.status(201).json({ message: "Enrollment successful" });
+  } catch (err) {
+    console.error("ENROLL ERROR:", err);
+
+    if (err.code === 11000) {
+      return res.status(400).json({
+        message: "Student ID or Email already exists",
+      });
+    }
+
+    res.status(500).json({
+      message: "Enrollment failed",
+      error: err.message,
+    });
+  }
+});
+
+
+// USER LOGIN
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+  
+  try {
+    const user = await User.findOne({ name: username });
+   
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isValid = await user.comparePassword(password);
+    if (!isValid) return res.status(401).json({ message: "Invalid credentials" });
+console.log("is",isValid)
+    const token = jwt.sign({ id: user._id }, "divyansh", { expiresIn: "3d" });
+    res.json({ token, name: user.name, email: user.email, message: "success" });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Login failed", error: error.message });
+  }
+});
+
+// ADMIN LOGIN
+app.post("/api/admin/login", async (req, res) => {
+  const { username, password } = req.body;
+console.log(req.body)
+  try {
+    // ✅ get admin from database
+    const admin = await Admins.findOne({ username });
+
+    if (!admin) {
+      return res.status(401).json({ message: "Invalid admin username" });
+    }
+
+    // ✅ compare hashed password
+    const match = await bcrypt.compare(password, admin.password);
+console.log(match)
+    if (!match) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    // ✅ generate token
+    const token = jwt.sign(
+      { id: admin._id, role: "admin" },
+      "divyansh",
+      { expiresIn: "1h" }
+    );
+
+    res.json({ message: "success", token });
+  } catch (error) {
+    console.error("Admin login error:", error);
+    res.status(500).json({ message: "Admin login failed" });
+  }
+});
+
+// TEST ROUTE TO GET USERS
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    const users = await User.find({}, 'name email');
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch users' });
+  }
+});
+import auth2 from "./auth2.js";
+
+app.get("/api/admin/me", auth2, (req, res) => {
+  res.json({ loggedIn: true, admin: req.admin });
+});
+
+/* 📚 Get Enrolled Students (Course Data) */
+app.get("/api/admin/courses", auth2, async (req, res) => {
+  const courses = await course.find().sort({ createdAt: -1 });
+  res.json(courses);
+});
+
+/* 👤 Get Registered Users */
+app.get("/api/admin/users", auth2, async (req, res) => {
+  const users = await User.find().select("-password");
+  res.json(users);
+});
+
+// ------------------ DATABASE & SERVER ------------------
+mongoose.connect('mongodb://127.0.0.1:27017/NKSkills')
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ MongoDB connection error:", err));
 
 app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
