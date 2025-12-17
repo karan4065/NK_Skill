@@ -51,103 +51,65 @@ console.log(res.data)
   };
 
   return (
-    <div
-      className="container-fluid d-flex align-items-center justify-content-center"
-      style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(to right, #d7e1ec, #f4f9ff)',
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-      }}
-    >
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50 font-sans px-4">
       <Toaster />
 
-      <div className="row w-100 justify-content-center align-items-center px-3">
-        {/* Login Form */}
-        <div className="col-lg-5 col-md-8" data-aos="fade-right">
-          <div className="p-5 bg-white rounded-4 shadow-lg">
-            <h2 className="text-center mb-3 fw-semibold text-primary">
-              Login to Continue
-            </h2>
-            <p className="text-center text-muted mb-4" style={{ fontSize: '0.95rem' }}>
-              Access your dashboard, manage donations, and explore new features.
+      <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        {/* Illustration */}
+        <div className="hidden lg:flex items-center justify-center" data-aos="fade-right">
+          <div className="max-w-md text-center">
+            <img
+              src="https://img.freepik.com/free-vector/login-concept-illustration_114360-739.jpg"
+              alt="Login Illustration"
+              className="w-full rounded-2xl shadow-sm"
+              style={{ maxHeight: '480px' }}
+            />
+            <p className="text-sm text-gray-600 mt-4">
+              Empowering learners with practical skills and real-world exposure.
             </p>
-
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
-              {/* Username */}
-              <div className="form-group mb-4">
-                <input
-                  type="text"
-                  {...register('username', { required: 'Username is required' })}
-                  className="form-control form-control-lg"
-                  placeholder="Username"
-                  autoComplete="username"
-                  style={{ backgroundColor: '#f2f6fc' }}
-                />
-                {errors.username && (
-                  <p className="text-danger mt-2">
-                    {errors.username.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Password */}
-              <div className="form-group mb-4">
-                <input
-                  type="password"
-                  {...register('password', { required: 'Password is required' })}
-                  className="form-control form-control-lg"
-                  placeholder="Password"
-                  autoComplete="current-password"
-                  style={{ backgroundColor: '#f2f6fc' }}
-                />
-                {errors.password && (
-                  <p className="text-danger mt-2">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="mb-3 text-end">
-                <NavLink
-                  to="/contact"
-                  className="text-decoration-none text-secondary"
-                >
-                  Forgot password?
-                </NavLink>
-              </div>
-
-              <div className="d-flex justify-content-between flex-wrap gap-2">
-                <NavLink to="/signup" className="btn btn-outline-primary px-4">
-                  Signup
-                </NavLink>
-
-                <button type="submit" className="btn btn-primary px-5">
-                  Login
-                </button>
-
-                <button
-                  type="button"
-                  className="btn btn-warning px-4 text-white"
-                  onClick={() => navigate('/adminlogin')}
-                >
-                  Admin Login
-                </button>
-              </div>
-            </form>
           </div>
         </div>
 
-        {/* Illustration */}
-        <div className="col-lg-6 mt-5 mt-lg-0 text-center" data-aos="fade-left">
-          <img
-            src="https://img.freepik.com/free-vector/login-concept-illustration_114360-739.jpg"
-            alt="Login Illustration"
-            className="img-fluid rounded-4 shadow-sm"
-            style={{ maxHeight: '480px' }}
-          />
-          <p className="text-muted mt-3">
-            Empowering communities through smart food donation systems.
-          </p>
+        {/* Login Card */}
+        <div className="flex items-center justify-center" data-aos="fade-left">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+            <h2 className="text-2xl font-bold text-blue-700 text-center mb-2">Login to Continue</h2>
+            <p className="text-center text-gray-500 mb-6 text-sm">Access your dashboard and course resources</p>
+
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <label className="block text-sm font-medium text-gray-700">Username</label>
+              <input
+                type="text"
+                {...register('username', { required: 'Username is required' })}
+                placeholder="Username"
+                autoComplete="username"
+                className="mt-2 mb-4 w-full px-3 py-2 bg-gray-100 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              />
+              {errors.username && <p className="text-sm text-red-600 mb-3">{errors.username.message}</p>}
+
+              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <input
+                type="password"
+                {...register('password', { required: 'Password is required' })}
+                placeholder="Password"
+                autoComplete="current-password"
+                className="mt-2 mb-4 w-full px-3 py-2 bg-gray-100 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              />
+              {errors.password && <p className="text-sm text-red-600 mb-3">{errors.password.message}</p>}
+
+              <div className="flex justify-end mb-4">
+                <NavLink to="/contact" className="text-sm text-blue-600 hover:underline">Forgot password?</NavLink>
+              </div>
+
+              <div className="flex gap-3 flex-wrap">
+                <NavLink to="/signup" className="inline-block px-4 py-2 border border-blue-600 text-blue-600 rounded-lg text-sm">Signup</NavLink>
+
+                <button type="submit" className="inline-block px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-sm shadow">Login</button>
+
+                <button type="button" onClick={() => navigate('/adminlogin')} className="inline-block px-4 py-2 bg-orange-500 text-white rounded-lg text-sm">Admin Login</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>

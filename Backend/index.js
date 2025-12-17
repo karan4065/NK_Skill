@@ -1,6 +1,8 @@
 // index.js
 import express from "express";
 import dotenv from "dotenv";
+import fs from 'fs';
+import path from 'path';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
@@ -19,6 +21,16 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// Ensure data directory exists for storing contacts
+const dataDir = path.resolve('./data');
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+const contactsFile = path.join(dataDir, 'contacts.json');
+if (!fs.existsSync(contactsFile)) {
+  fs.writeFileSync(contactsFile, '[]');
+}
 
 // ------------------ ROUTES ------------------
 
@@ -125,7 +137,7 @@ console.log("is",isValid)
 });
 
 // ADMIN LOGIN
-app.post("/api/admin/login", async (req, res) => {
+app.post("/api/adminlogin", async (req, res) => {
   const { username, password } = req.body;
 console.log(req.body)
   try {
@@ -164,6 +176,28 @@ app.get('/api/admin/users', async (req, res) => {
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch users' });
+  }
+});
+
+// Contact form endpoint — stores submissions to data/contacts.json
+app.post('/api/contact', (req, res) => {
+  try {
+    const { fullName, email, message } = req.body;
+    if (!fullName || !email || !message) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // read existing
+    const raw = fs.readFileSync(contactsFile, 'utf8');
+    const contacts = raw ? JSON.parse(raw) : [];
+    const entry = { id: Date.now(), fullName, email, message, createdAt: new Date().toISOString() };
+    contacts.push(entry);
+    fs.writeFileSync(contactsFile, JSON.stringify(contacts, null, 2));
+
+    return res.status(201).json({ message: 'Contact saved', entry });
+  } catch (err) {
+    console.error('Contact save error:', err);
+    return res.status(500).json({ message: 'Failed to save contact' });
   }
 });
 import auth2 from "./auth2.js";

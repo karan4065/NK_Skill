@@ -63,11 +63,11 @@ body {
 /* Gradient text utility */
 @layer components {
   .gradient-text {
-    @apply bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent;
   }
 
   .gradient-text-cyan {
-    @apply bg-gradient-to-r from-cyan-400 to-pink-400 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-blue-300 to-indigo-400 bg-clip-text text-transparent;
   }
 
   /* Smooth transitions */
@@ -93,5 +93,5 @@ html {
 
 /* Selection color */
 ::selection {
-  @apply bg-purple-600 text-white;
+  @apply bg-blue-600 text-white;
 }

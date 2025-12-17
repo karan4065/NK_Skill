@@ -181,7 +181,7 @@ const Service = () => {
 
               <button
                 onClick={() => setSelectedService(null)}
-                className="px-6 py-3 rounded-full bg-purple-600 text-white hover:bg-purple-700"
+                className="px-6 py-3 rounded-full bg-blue-600 text-white hover:bg-blue-700"
               >
                 Back to Services
               </button>
@@ -204,7 +204,7 @@ const Service = () => {
   return (
     <section id="services" className="py-10 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center mb-12 underline decoration-purple-600">
+        <h2 className="text-4xl font-bold text-center mb-12 underline decoration-blue-600">
           What We Offer
         </h2>
 
@@ -217,7 +217,7 @@ const Service = () => {
                 onClick={() => setSelectedService(key)}
                 className="cursor-pointer bg-white rounded-2xl p-8 text-center shadow-md hover:shadow-xl"
               >
-                <Icon className="mx-auto mb-4 text-purple-600" size={40} />
+                <Icon className="mx-auto mb-4 text-blue-600" size={40} />
                 <h3 className="text-xl font-semibold mb-2">
                   {service.title}
                 </h3>

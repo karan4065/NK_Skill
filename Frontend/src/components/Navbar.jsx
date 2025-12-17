@@ -61,8 +61,8 @@ export default function Navbar() {
     <nav
       className={`fixed w-full top-0 z-50 transition-all duration-500 ease-in-out ${
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-xl'
-          : 'bg-gradient-to-b from-black/40 to-transparent'
+          ? 'bg-white backdrop-blur-md shadow-xl'
+          : 'bg-white backdrop-blur-md shadow-xl'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,17 +70,14 @@ export default function Navbar() {
 
           {/* Logo */}
           <div
-            className="flex-shrink-0 group cursor-pointer"
+            className="flex-shrink-0 group cursor-pointer flex items-center gap-2"
             onClick={() => scrollToSection('home')}
           >
-            <h1 className={`text-2xl md:text-3xl font-bold ${
-              isScrolled ? 'text-purple-600' : 'text-white'
-            }`}>
-              <span className="text-purple-600">NK</span>
-              <span className={isScrolled ? 'text-gray-800' : 'text-white'}>
-                SkillEdge
-              </span>
-            </h1>
+            <img
+              src="/logonk.jpg"
+              alt="NK SkillEdge"
+              className="h-10 md:h-14 w-auto transition-all duration-300 group-hover:scale-105"
+            />
           </div>
 
           {/* Desktop Nav */}
@@ -91,7 +88,7 @@ export default function Navbar() {
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
                   className={`px-1 py-2 text-sm font-medium ${
-                    isScrolled ? 'text-gray-700' : 'text-white'
+                    isScrolled ? 'text-gray-700' : 'text-gray-700'
                   }`}
                 >
                   {item.label}
@@ -114,15 +111,15 @@ export default function Navbar() {
                     href="/login"
                     className={`px-4 py-2 rounded-full border ${
                       isScrolled
-                        ? 'text-gray-700 border-gray-200 hover:bg-gray-100'
-                        : 'text-white border-white/30 hover:bg-white/10'
+                        ? 'text-orange-500 border-white/30 hover:bg-white/10'
+                        : 'text-orange-500 border-white/30 hover:bg-white/10'
                     }`}
                   >
                     Login
                   </a>
                   <a
-                    href="/admin"
-                    className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold"
+                    href="/adminlogin"
+                    className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold hover:shadow-lg transition-all duration-300"
                   >
                     Admin Login
                   </a>

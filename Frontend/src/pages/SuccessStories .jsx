@@ -58,10 +58,10 @@ const SuccessStories = () => {
 
               {/* Content */}
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-purple-600">
+                <h3 className="text-lg font-semibold text-blue-600">
                   {story.name}
                 </h3>
-                <p className="text-sm text-teal-600 font-medium mb-4">
+                <p className="text-sm text-orange-600 font-medium mb-4">
                   {story.role}
                 </p>
 
