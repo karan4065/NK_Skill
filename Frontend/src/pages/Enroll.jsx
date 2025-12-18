@@ -71,14 +71,19 @@ const Enroll = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.post("http://localhost:4000/api/enroll", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+     await axios.post(
+  `${import.meta.env.VITE_API_URL}/api/enroll`,
+  formData,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
 
       toast.success("Enrollment Successful 🎉");
-      setTimeout(() => navigate("/home"), 1500);
+      setTimeout(() => navigate("/"), 1500);
     } catch (err) {
       toast.error(err.response?.data?.message || "Enrollment failed");
     }

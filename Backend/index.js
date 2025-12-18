@@ -16,8 +16,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+// app.use(cors({
+//   origin: "http://localhost:5173",
+//   credentials: true
+// }));
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+// local dev
+    "https://nkskills-edge.vercel.app" // deployed frontend
+  ],
   credentials: true
 }));
 app.use(express.json());
@@ -168,7 +175,24 @@ console.log(match)
     res.status(500).json({ message: "Admin login failed" });
   }
 });
+app.get("/api/admin/contacts", async (req, res) => {
+  try {
+    const contacts = await Contact.find()
+      .sort({ createdAt: -1 }); // latest first
 
+    res.status(200).json({
+      success: true,
+      count: contacts.length,
+      contacts,
+    });
+  } catch (error) {
+    console.error("Fetch contacts error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch contacts",
+    });
+  }
+});
 // TEST ROUTE TO GET USERS
 app.get('/api/admin/users', async (req, res) => {
   try {
@@ -178,27 +202,30 @@ app.get('/api/admin/users', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch users' });
   }
 });
-
+import Contact from "./Contact.js";
 // Contact form endpoint — stores submissions to data/contacts.json
-app.post('/api/contact', (req, res) => {
+app.post("/api/contact", async (req, res) => {
   try {
     const { fullName, email, message } = req.body;
+
     if (!fullName || !email || !message) {
-      return res.status(400).json({ message: 'All fields are required' });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    // read existing
-    const raw = fs.readFileSync(contactsFile, 'utf8');
-    const contacts = raw ? JSON.parse(raw) : [];
-    const entry = { id: Date.now(), fullName, email, message, createdAt: new Date().toISOString() };
-    contacts.push(entry);
-    fs.writeFileSync(contactsFile, JSON.stringify(contacts, null, 2));
+    const contact = await Contact.create({ fullName, email, message });
 
-    return res.status(201).json({ message: 'Contact saved', entry });
+    res.status(201).json({
+      message: "Contact saved",
+      contact,
+    });
   } catch (err) {
-    console.error('Contact save error:', err);
-    return res.status(500).json({ message: 'Failed to save contact' });
+    console.error(err);
+    res.status(500).json({ message: "Failed to save contact" });
   }
+});
+app.get("/start", (req, res) => {
+  console.log("Someone visited the homepage!");
+  res.send("Welcome to the homepage!");
 });
 import auth2 from "./auth2.js";
 
@@ -219,7 +246,8 @@ app.get("/api/admin/users", auth2, async (req, res) => {
 });
 
 // ------------------ DATABASE & SERVER ------------------
-mongoose.connect('mongodb://127.0.0.1:27017/NKSkills')
+// mongoose.connect('mongodb://127.0.0.1:27017/NKSkills')
+mongoose.connect('mongodb+srv://divyansh:divyanshbharbat@cluster0.beo6nmb.mongodb.net/')
   .then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB connection error:", err));
 

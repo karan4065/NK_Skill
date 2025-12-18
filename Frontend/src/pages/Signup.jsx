@@ -23,8 +23,13 @@ useEffect(()=>{
 console.log(`${import.meta.env.VITE_APP}`)
   const onSubmit = async (data) => {
   try {
-    const response = await axios.post("http://localhost:4000/api/signup", data);
-    console.log("Signup response:", response.data);
+const response = await axios.post(
+  `${import.meta.env.VITE_API_URL}/api/signup`,
+  data
+);
+
+console.log("Signup response:", response.data);
+
 
     if (response.data.message === "success") {
       toast.success("Account created successfully 🎉");

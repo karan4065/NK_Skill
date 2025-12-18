@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
 const Dashboard = () => {
   const token = localStorage.getItem("adminToken");
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("courses");
   const [courses, setCourses] = useState([]);
   const [users, setUsers] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [admin, setAdmin] = useState(null);
   const [error, setError] = useState("");
-const navigate=useNavigate()
-  // Fetch admin & dashboard data
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       if (!token) {
@@ -21,23 +24,30 @@ const navigate=useNavigate()
 
       try {
         const headers = { Authorization: `Bearer ${token}` };
+
+        // Fetch admin info
         const adminRes = await axios.get(
-          "http://localhost:4000/api/admin/me",
+          `${import.meta.env.VITE_API_URL}/api/admin/me`,
           { headers }
         );
-        setAdmin(adminRes.data.admin);
 
-        const [courseRes, userRes] = await Promise.all([
-          axios.get("http://localhost:4000/api/admin/courses", { headers }),
-          axios.get("http://localhost:4000/api/admin/users", { headers }),
+        // Fetch courses, users, and contacts simultaneously
+        const [courseRes, userRes, contactRes] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_APP}/api/admin/courses`, { headers }),
+          axios.get(`${import.meta.env.VITE_APP}/api/admin/users`, { headers }),
+          axios.get(`${import.meta.env.VITE_APP}/api/admin/contacts`, { headers }),
         ]);
+        console.log(contactRes.data);
 
-        setCourses(courseRes.data);
-        setUsers(userRes.data);
+        setAdmin(adminRes.data.admin);
+        setCourses(Array.isArray(courseRes.data) ? courseRes.data : courseRes.data.courses || []);
+        setUsers(Array.isArray(userRes.data) ? userRes.data : userRes.data.users || []);
+        setContacts(Array.isArray(contactRes.data.contacts) ? contactRes.data.contacts : []);
         setLoading(false);
       } catch (err) {
+        console.error("Dashboard fetch error:", err);
         localStorage.removeItem("adminToken");
-        setError("Invalid token. Please login again.");
+        setError("Session expired or API error. Please login again.");
         setLoading(false);
       }
     };
@@ -47,17 +57,16 @@ const navigate=useNavigate()
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
-  navigate("/")
+    navigate("/");
   };
 
-  if (loading)
-    return <h2 style={{ textAlign: "center", marginTop: "50px" }}>Loading...</h2>;
+  if (loading) return <h2 style={styles.loading}>Loading Dashboard...</h2>;
 
   if (error)
     return (
       <div style={styles.center}>
         <h2>{error}</h2>
-        <button onClick={() => (window.location.href = "/adminlogin")} style={styles.loginBtn}>
+        <button style={styles.loginBtn} onClick={() => navigate("/adminlogin")}>
           Go to Login
         </button>
       </div>
@@ -67,164 +76,173 @@ const navigate=useNavigate()
     <div style={styles.container}>
       {/* Header */}
       <div style={styles.header}>
-        <h2>Welcome, {admin?.username}</h2>
-        <button style={styles.logoutBtn} onClick={handleLogout}>
-          Logout
-        </button>
+        <h2>Admin Dashboard</h2>
+        <div>
+          <span style={styles.adminName}>👋 {admin?.username}</span>
+          <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
+        </div>
       </div>
 
       {/* Tabs */}
       <div style={styles.tabs}>
-        <button
-          style={activeTab === "courses" ? styles.activeTab : styles.tab}
-          onClick={() => setActiveTab("courses")}
-        >
-          Enrollments
-        </button>
-        <button
-          style={activeTab === "users" ? styles.activeTab : styles.tab}
-          onClick={() => setActiveTab("users")}
-        >
-          Users
-        </button>
+        {["courses", "users", "contacts"].map(tab => (
+          <button
+            key={tab}
+            style={activeTab === tab ? styles.activeTab : styles.tab}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab.toUpperCase()}
+          </button>
+        ))}
       </div>
 
-      {/* Content */}
+      {/* COURSES */}
       {activeTab === "courses" && (
-        <div>
-          <h3 style={styles.sectionTitle}>Student Enrollments</h3>
-          <div style={styles.cardContainer}>
-            {courses.map((c) => (
-              <div key={c._id} style={styles.card}>
-                <p><strong>Student ID:</strong> {c.studentId}</p>
-                <p><strong>Name:</strong> {c.fullName}</p>
-                <p><strong>Email:</strong> {c.emailId}</p>
-                <p><strong>Mobile:</strong> {c.mobileNumber}</p>
-                <p><strong>Course:</strong> {c.courseName}</p>
-                <p><strong>College:</strong> {c.collegeName}</p>
-                <p><strong>Year/Sem:</strong> {c.yearSemester}</p>
-                <p>
-                  <strong>Payment:</strong>{" "}
-                  <span
-                    style={{
-                      color:
-                        c.paymentStatus === "Paid"
-                          ? "green"
-                          : c.paymentStatus === "Pending"
-                          ? "orange"
-                          : "red",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {c.paymentStatus}
-                  </span>
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Section title="Student Enrollments">
+          {courses.length === 0 ? <p>No courses found.</p> :
+            courses.map(c => (
+              <Card key={c._id}>
+                <Info label="Student ID" value={c.studentId} />
+                <Info label="Name" value={c.fullName} />
+                <Info label="Email" value={c.emailId} />
+                <Info label="Course" value={c.courseName} />
+                <Info label="College" value={c.collegeName} />
+                <Info label="Payment" value={c.paymentStatus} status />
+              </Card>
+            ))
+          }
+        </Section>
       )}
 
+      {/* USERS */}
       {activeTab === "users" && (
-        <div>
-          <h3 style={styles.sectionTitle}>Registered Users</h3>
-          <div style={styles.cardContainer}>
-            {users.map((u) => (
-              <div key={u._id} style={styles.card}>
-                <p><strong>Name:</strong> {u.name}</p>
-                <p><strong>Email:</strong> {u.email}</p>
-                <p><strong>Joined:</strong> {new Date(u.createdAt).toLocaleDateString()}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Section title="Registered Users">
+          {users.length === 0 ? <p>No users found.</p> :
+            users.map(u => (
+              <Card key={u._id}>
+                <Info label="Name" value={u.name} />
+                <Info label="Email" value={u.email} />
+                <Info label="Joined" value={new Date(u.createdAt).toLocaleDateString()} />
+              </Card>
+            ))
+          }
+        </Section>
+      )}
+
+      {/* CONTACTS */}
+      {activeTab === "contacts" && (
+        <Section title="Contact Messages">
+          {contacts.length === 0 ? <p>No contacts found.</p> :
+            contacts.map(c => (
+              <Card key={c._id}>
+                <Info label="Name" value={c.fullName} />
+                <Info label="Email" value={c.email} />
+                <p style={styles.messageBox}>{c.message}</p>
+                <small style={styles.date}>
+                  {new Date(c.createdAt).toLocaleString()}
+                </small>
+              </Card>
+            ))
+          }
+        </Section>
       )}
     </div>
   );
 };
 
+/* 🔹 Reusable Components */
+const Section = ({ title, children }) => (
+  <>
+    <h3 style={styles.sectionTitle}>{title}</h3>
+    <div style={styles.cardContainer}>{children}</div>
+  </>
+);
+
+const Card = ({ children }) => <div style={styles.card}>{children}</div>;
+
+const Info = ({ label, value, status }) => (
+  <p>
+    <strong>{label}:</strong>{" "}
+    <span style={status ? styles.status(value) : {}}>{value}</span>
+  </p>
+);
+
 /* 🎨 Styles */
 const styles = {
   container: {
-    padding: "20px",
-    fontFamily: "Segoe UI, sans-serif",
-    background: "#f4f6f8",
+    padding: "30px",
+    background: "#f1f5f9",
     minHeight: "100vh",
+    fontFamily: "Inter, sans-serif",
   },
   header: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
-    background: "#1e293b",
+    background: "linear-gradient(135deg,#1e3a8a,#2563eb)",
     color: "#fff",
-    padding: "15px 25px",
-    borderRadius: "8px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    marginBottom: "20px",
+    padding: "20px 30px",
+    borderRadius: "12px",
+    marginBottom: "25px",
   },
+  adminName: { marginRight: "15px", fontWeight: "600" },
   logoutBtn: {
     background: "#ef4444",
     color: "#fff",
     border: "none",
-    padding: "10px 20px",
+    padding: "8px 16px",
+    borderRadius: "6px",
     cursor: "pointer",
-    borderRadius: "6px",
-    fontWeight: "bold",
   },
-  tabs: {
-    display: "flex",
-    gap: "15px",
-    marginBottom: "20px",
-  },
+  tabs: { display: "flex", gap: "15px", marginBottom: "20px" },
   tab: {
-    padding: "10px 25px",
+    padding: "10px 22px",
+    borderRadius: "8px",
     border: "none",
-    borderRadius: "6px",
     cursor: "pointer",
     background: "#e5e7eb",
-    fontWeight: "500",
-    transition: "0.3s",
   },
   activeTab: {
-    padding: "10px 25px",
+    padding: "10px 22px",
+    borderRadius: "8px",
     border: "none",
-    borderRadius: "6px",
     cursor: "pointer",
     background: "#2563eb",
     color: "#fff",
-    fontWeight: "600",
-    transition: "0.3s",
   },
-  sectionTitle: {
-    marginBottom: "15px",
-    color: "#1e293b",
-  },
+  sectionTitle: { marginBottom: "15px", color: "#1e293b" },
   cardContainer: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
     gap: "20px",
   },
   card: {
     background: "#fff",
-    padding: "15px 20px",
-    borderRadius: "8px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-    transition: "0.3s",
+    padding: "20px",
+    borderRadius: "12px",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
   },
+  messageBox: {
+    marginTop: "10px",
+    padding: "12px",
+    background: "#f8fafc",
+    borderRadius: "8px",
+    color: "#334155",
+  },
+  date: { color: "#64748b" },
+  status: (v) => ({
+    color: v === "Paid" ? "green" : v === "Pending" ? "orange" : "red",
+    fontWeight: "bold",
+  }),
+  loading: { textAlign: "center", marginTop: "50px" },
   loginBtn: {
     padding: "10px 20px",
-    marginTop: "20px",
-    cursor: "pointer",
     background: "#2563eb",
     color: "#fff",
     border: "none",
     borderRadius: "6px",
-    fontWeight: "bold",
+    cursor: "pointer",
   },
-  center: {
-    textAlign: "center",
-    marginTop: "50px",
-  },
+  center: { textAlign: "center", marginTop: "50px" },
 };
 
 export default Dashboard;

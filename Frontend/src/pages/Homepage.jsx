@@ -6,7 +6,7 @@ import Service from './Service';
 import SuccessStories from './SuccessStories ';
 import CoreTeam from './CoreTeam';
 import Contact from './Contact';
-
+import axios from 'axios'
 export default function Homepage() {
   const [activeNav, setActiveNav] = useState('home');
 
@@ -29,7 +29,11 @@ export default function Homepage() {
   const handleScrollDown = () => {
     scrollToSection('about');
   };
-
+ useEffect(() => {
+    axios.get(`${import.meta.env.VITE_APP}/start`)
+      .then(() => console.log("Backend notified of homepage visit"))
+      .catch(err => console.error(err));
+  }, []);
   return (
     <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Navbar Component */}
