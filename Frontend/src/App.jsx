@@ -5,7 +5,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Enroll from "./pages/Enroll";
 import Dashboard from "./pages/Dashboard";
-import AdminLogin from "./pages/AdminLogin";
+import Adminenter from "./pages/Adminenter";
 const App = () => {
   return (
     <div>
@@ -16,7 +16,7 @@ const App = () => {
         {/* keep backward-compatibility for /admin URL */}
         <Route path="/admin" element={<Navigate to="/adminlogin" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/adminlogin" element={<AdminLogin/>} />
+        <Route path="/adminlogin" element={<Adminenter/>} />
   
         <Route path="/enroll/:serviceId" element={<Enroll />} />
 
