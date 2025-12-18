@@ -6,7 +6,7 @@ import { toast, Toaster } from 'react-hot-toast';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-const adminLogin = () => {
+const AdminLogin = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
 
@@ -99,4 +99,4 @@ console.log(res.data)
   );
 };
 
-export default adminLogin;
+export default AdminLogin;
