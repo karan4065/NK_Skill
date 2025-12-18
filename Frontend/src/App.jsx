@@ -5,7 +5,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Enroll from "./pages/Enroll";
 import Dashboard from "./pages/Dashboard";
-import AdminLogin from "./pages/adminLogin";
+import AdminLogin from "./pages/AdminLogin";
 const App = () => {
   return (
     <div>
