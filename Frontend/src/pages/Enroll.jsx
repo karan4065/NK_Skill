@@ -72,7 +72,7 @@ const Enroll = () => {
       const token = localStorage.getItem("token");
 
      await axios.post(
-  `${import.meta.env.VITE_API_URL}/api/enroll`,
+  `${import.meta.env.VITE_APP}/api/enroll`,
   formData,
   {
     headers: {

@@ -30,7 +30,7 @@ const Login = () => {
   const onSubmit = async (data) => {
     try {
      const res = await axios.post(
-  `${import.meta.env.VITE_API_URL}/api/login`,
+  `${import.meta.env.VITE_APP}/api/login`,
   data
 );
 

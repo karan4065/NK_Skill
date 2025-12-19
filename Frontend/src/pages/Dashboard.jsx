@@ -27,7 +27,7 @@ const Dashboard = () => {
 
         // Fetch admin info
         const adminRes = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/admin/me`,
+          `${import.meta.env.VITE_APP}/api/admin/me`,
           { headers }
         );
 
