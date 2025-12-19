@@ -194,14 +194,7 @@ app.get("/api/admin/contacts", async (req, res) => {
   }
 });
 // TEST ROUTE TO GET USERS
-app.get('/api/admin/users', async (req, res) => {
-  try {
-    const users = await User.find({}, 'name email');
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch users' });
-  }
-});
+
 import Contact from "./Contact.js";
 // Contact form endpoint — stores submissions to data/contacts.json
 app.post("/api/contact", async (req, res) => {
@@ -247,10 +240,15 @@ app.get("/api/admin/users", auth2, async (req, res) => {
 
 // ------------------ DATABASE & SERVER ------------------
 // mongoose.connect('mongodb://127.0.0.1:27017/NKSkills')
-mongoose.connect('mongodb+srv://divyansh:divyanshbharbat@cluster0.beo6nmb.mongodb.net/')
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.error("❌ MongoDB connection error:", err));
-
+mongoose.connect(process.env.MONGODB_URI, {
+  serverSelectionTimeoutMS: 30000,
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => {
+  console.error("MongoDB connection error:", err);
+  process.exit(1);
+});
+// console.log("MONGODB_URI:", process.env.MONGODB_URI);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
